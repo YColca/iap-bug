@@ -1,0 +1,22 @@
+runtime: custom
+env: flex
+
+service: "spring-boot-3-test"
+
+handlers:
+  - url: /.*
+    script: this field is required, but ignored
+
+# TBD
+resources:
+  cpu: 1
+  memory_gb: 1.75
+  disk_size_gb: 10
+  volumes:
+    - name: ramdisk1
+      volume_type: tmpfs
+      size_gb: 0.75
+
+# for the beginning 1 instances is enough
+manual_scaling:
+  instances: 1

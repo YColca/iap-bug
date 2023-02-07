@@ -1,0 +1,71 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.0.2'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'com.google.cloud.tools.appengine' version '2.4.4'
+	id 'application'
+}
+
+group = 'com.example.iap'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudGcpVersion', "4.0.0")
+	set('springCloudVersion', "2022.0.1")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.google.cloud:spring-cloud-gcp-starter'
+	implementation 'com.google.cloud:spring-cloud-gcp-starter-security-iap'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "com.google.cloud:spring-cloud-gcp-dependencies:${springCloudGcpVersion}"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+appengine {
+	tools {
+		// configure tools
+		String service_account_file = System.getenv('SERVICE_ACCOUNT')
+		if (service_account_file != null) {
+			serviceAccountKeyFile = service_account_file
+		}
+	}
+	stage {
+		artifact "build/libs/spring-boot-3-test-0.0.1-SNAPSHOT.jar"
+	}
+	deploy {
+		version = 'v1'
+		projectId = System.getenv('PROJECT_ID')
+	}
+}
+
+jar {
+	enabled = false
+}
+
+startScripts {
+	dependsOn(bootJar)
+}
+
+distTar {
+	dependsOn(bootJar)
+}
+
+distZip {
+	dependsOn(bootJar)
+}
